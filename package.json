@@ -1,0 +1,13 @@
+{
+  "name": "spider-jockey",
+  "version": "1.0.0",
+  "description": "A simple code generator to wrap contract invocation behind a type-safe environment",
+  "author": "Pablo Blanco Celdrán <pablobc.1995@gmail.com>",
+  "license": "MIT",
+  "bin": {
+    "spider-jockey": "./target/release/spider-jockey"
+  },
+  "scripts": {
+    "postinstall": "cargo build --release"
+  }
+}
