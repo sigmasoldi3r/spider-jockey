@@ -14,8 +14,8 @@ fn create_class_code() {
         .param()
         .string("wailers")
         .param_end()
-        .end()
-        .as_statement()
+        .call_end()
+        .expression_end()
         .class("Foo")
         .constructor()
         .field("bar", ts::Type::String, true, ts::Visibility::Public)
@@ -23,8 +23,8 @@ fn create_class_code() {
             "_useless",
             ts::Type::Union(vec![ts::Type::Number, ts::Type::String, ts::Type::Null]),
         )
-        .end()
-        .pop()
+        .method_end()
+        .class_end()
         .collect();
     assert_eq!(
         "
@@ -48,15 +48,28 @@ fn create_class_with_functions() {
             true,
             ts::Visibility::Private,
         )
-        .end()
-        .pop()
+        .constructor_end()
+        .method("myCustomCall", true, ts::Visibility::Public)
+        .param("value", ts::Type::Number)
+        .body()
+        .expression()
+        .field("this")
+        .dot()
+        .field("contract")
+        .dot()
+        .field("call")
+        .call()
+        .call_end()
+        .expression_end()
+        .method_end()
+        .class_end()
         .collect();
     assert_eq!(
         "
 import AbstractContract from \"./AbstractContract\";
 class MyClass {
   constructor(private readonly contract: AbstractContract) {}
-  async myCustomCall(value: number) {
+  public async myCustomCall(value: number) {
     return await contract.call(\"myCustomCall\", value);
   }
 }

@@ -146,6 +146,9 @@ impl Script {
     pub fn expression(self) -> Expression {
         Expression(self.0.line())
     }
+    pub fn method_end(self) -> Class {
+        Class(self.0.pop().line().add("}"))
+    }
 }
 
 pub struct Expression(Builder);
@@ -165,7 +168,7 @@ impl Expression {
     pub fn call(self) -> CallExpression {
         CallExpression(self.0.add("("))
     }
-    pub fn as_statement(self) -> Script {
+    pub fn expression_end(self) -> Script {
         Script(self.0.add(";"))
     }
     pub fn param_end(self) -> CallExpression {
@@ -194,28 +197,40 @@ impl CallExpression {
             self.0.add(", ")
         })
     }
-    pub fn end(self) -> Expression {
+    pub fn call_end(self) -> Expression {
         Expression(self.0.add(")"))
     }
 }
 
 pub struct Class(Builder);
 impl Class {
-    pub fn pop(self) -> Script {
+    pub fn class_end(self) -> Script {
         Script(self.0.pop().line().add("}"))
     }
-    pub fn constructor(self) -> ClassConstructor {
-        ClassConstructor(self.0.line().add("constructor("))
+    pub fn constructor(self) -> Method {
+        Method(self.0.line().add("constructor("))
+    }
+    pub fn method<S>(self, name: S, is_async: bool, visibility: Visibility) -> Method
+    where
+        S: ToString,
+    {
+        let is_async = if is_async { "async " } else { "" };
+        Method(self.0.add(format!(
+            "{} {}{}(",
+            visibility.to_string(),
+            is_async,
+            name.to_string()
+        )))
     }
 }
 
-pub struct ClassConstructor(Builder);
-impl ClassConstructor {
+pub struct Method(Builder);
+impl Method {
     pub fn param<S>(self, name: S, kind: Type) -> Self
     where
         S: ToString,
     {
-        ClassConstructor(if self.0.output.ends_with("(") {
+        Method(if self.0.output.ends_with("(") {
             self.0.add(name).add(": ").add(kind.to_string())
         } else {
             self.0.add(", ").add(name).add(": ").add(kind.to_string())
@@ -230,7 +245,7 @@ impl ClassConstructor {
         } else {
             "".to_owned()
         };
-        ClassConstructor(if self.0.output.ends_with("(") {
+        Method(if self.0.output.ends_with("(") {
             self.0
                 .add(format!("{} {}", visibility.to_string(), readonly))
                 .add(name)
@@ -244,17 +259,13 @@ impl ClassConstructor {
                 .add(kind.to_string())
         })
     }
-    pub fn end(self) -> Class {
+    pub fn method_end(self) -> Class {
         Class(self.0.add(") {}"))
     }
-    pub fn body(self) -> ClassScript {
-        todo!()
+    pub fn constructor_end(self) -> Class {
+        self.method_end()
     }
-}
-
-pub struct ClassScript(Script);
-impl ClassScript {
-    pub fn end(self) -> Class {
-        Class(self.0 .0.line().pop().add("}"))
+    pub fn body(self) -> Script {
+        Script(self.0.add(") {").push())
     }
 }
