@@ -16,7 +16,7 @@ fn create_class_code() {
         .param_end()
         .call_end()
         .expression_end()
-        .class("Foo")
+        .class("Foo", ts::Export::Private)
         .constructor()
         .field("bar", ts::Type::String, true, ts::Visibility::Public)
         .param(
@@ -44,7 +44,7 @@ fn create_class_with_functions() {
         .by_default("AbstractContract")
         .from("./AbstractContract")
         .import_end()
-        .class("MyClass")
+        .class("MyClass", ts::Export::Default)
         .constructor()
         .field(
             "contract",
@@ -79,7 +79,7 @@ fn create_class_with_functions() {
     assert_eq!(
         "
 import AbstractContract from \"./AbstractContract\";
-class MyClass {
+export default class MyClass {
   constructor(private readonly contract: AbstractContract) {}
   public async myCustomCall(value: number) {
     return await this.contract.call(\"myCustomCall\", value);

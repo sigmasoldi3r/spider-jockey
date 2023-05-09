@@ -76,6 +76,22 @@ impl Visibility {
     }
 }
 
+pub enum Export {
+    Private,
+    Named,
+    Default,
+}
+impl Export {
+    pub fn to_string(self) -> String {
+        match self {
+            Export::Private => "",
+            Export::Named => "export ",
+            Export::Default => "export default ",
+        }
+        .to_string()
+    }
+}
+
 pub struct Builder {
     output: String,
     level: u8,
@@ -131,11 +147,20 @@ impl Script {
     pub fn new() -> Self {
         Script(Builder::new())
     }
-    pub fn class<S>(self, str: S) -> Class
+    pub fn class<S>(self, str: S, export: Export) -> Class
     where
         S: ToString,
     {
-        Class(self.0.line().add("class ").add(str).add(" {").push())
+        let export = export.to_string();
+        Class(
+            self.0
+                .line()
+                .add(export)
+                .add("class ")
+                .add(str)
+                .add(" {")
+                .push(),
+        )
     }
     pub fn collect(self) -> String {
         self.0.add("\n").output
