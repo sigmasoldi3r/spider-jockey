@@ -53,8 +53,14 @@ when developing.
 
 ## Contributing
 
-If you know about a good Typescript code emitter that
-works with rust, I am looking forward to implement that also.
+~~If you know about a good Typescript code emitter that
+works with rust, I am looking forward to implement that also.~~
+
+**Edit:** Since I couldn't find anything, and maintaining a code
+that does copy-and-paste of strings is tedious, I've built my
+own, but does only support the minimal for this program.
+During the following weeks I'll abstract that to an individual
+crate, so it can be reused.
 
 There's a lot of things to enhance, like adding more
 parameters to the generator, here are some:
