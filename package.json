@@ -6,6 +6,6 @@
   "license": "MIT",
   "bin": "target/release/spider-jockey",
   "scripts": {
-    "postinstall": "cargo build --release"
+    "install": "cargo build --release"
   }
 }
