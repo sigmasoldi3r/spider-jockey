@@ -16,7 +16,7 @@ fn create_class_code() {
         .param_end()
         .call_end()
         .expression_end()
-        .class("Foo", ts::Export::Private)
+        .class("Foo", ts::Export::Private, ts::ClassType::Normal)
         .constructor()
         .field("bar", ts::Type::String, true, ts::Visibility::Public)
         .param(
@@ -44,7 +44,7 @@ fn create_class_with_functions() {
         .by_default("AbstractContract")
         .from("./AbstractContract")
         .import_end()
-        .class("MyClass", ts::Export::Default)
+        .class("MyClass", ts::Export::Default, ts::ClassType::Normal)
         .constructor()
         .field(
             "contract",

@@ -5,6 +5,7 @@ pub enum Type {
     Array(Box<Type>),
     Number,
     String,
+    Boolean,
     Object,
     Any,
     Unknown,
@@ -16,10 +17,13 @@ pub enum Type {
     Null,
     Union(Vec<Type>),
     Class(String),
+    Promise(Box<Type>),
 }
 impl Type {
     pub fn to_string(self) -> String {
         match self {
+            Type::Promise(awaited) => format!("Promise<{}>", awaited.to_string()),
+            Type::Boolean => "boolean".to_owned(),
             Type::Class(name) => name,
             Type::Array(t) => format!("Array<{}>", t.to_string()),
             Type::Number => "number".to_owned(),
@@ -64,6 +68,7 @@ pub enum Visibility {
     Public,
     Protected,
     Private,
+    NotSpecified,
 }
 impl Visibility {
     pub fn to_string(self) -> String {
@@ -71,6 +76,7 @@ impl Visibility {
             Visibility::Public => "public",
             Visibility::Protected => "protected",
             Visibility::Private => "private",
+            Visibility::NotSpecified => "",
         }
         .to_string()
     }
@@ -87,6 +93,22 @@ impl Export {
             Export::Private => "",
             Export::Named => "export ",
             Export::Default => "export default ",
+        }
+        .to_string()
+    }
+}
+
+pub enum ClassType {
+    Interface,
+    Abstract,
+    Normal,
+}
+impl ClassType {
+    pub fn to_string(self) -> String {
+        match self {
+            ClassType::Interface => "interface",
+            ClassType::Abstract => "abstract class",
+            ClassType::Normal => "class",
         }
         .to_string()
     }
@@ -147,7 +169,7 @@ impl Script {
     pub fn new() -> Self {
         Script(Builder::new())
     }
-    pub fn class<S>(self, str: S, export: Export) -> Class
+    pub fn class<S>(self, str: S, export: Export, abstraction: ClassType) -> Class
     where
         S: ToString,
     {
@@ -156,7 +178,7 @@ impl Script {
             self.0
                 .line()
                 .add(export)
-                .add("class ")
+                .add(format!("{} ", abstraction.to_string()))
                 .add(str)
                 .add(" {")
                 .push(),
@@ -292,6 +314,17 @@ impl Method {
             self.0.add(", ").add(name).add(": ").add(kind.to_string())
         })
     }
+    pub fn rest_param(self, name: &str, kind: Type) -> Self {
+        Method(if self.0.output.ends_with("(") {
+            self.0.add("...").add(name).add(": ").add(kind.to_string())
+        } else {
+            self.0
+                .add(", ...")
+                .add(name)
+                .add(": ")
+                .add(kind.to_string())
+        })
+    }
     pub fn field<S>(self, name: S, kind: Type, readonly: bool, visibility: Visibility) -> Self
     where
         S: ToString,
@@ -317,6 +350,9 @@ impl Method {
     }
     pub fn method_end(self) -> Class {
         Class(self.0.add(") {}"))
+    }
+    pub fn method_end_abstract(self, return_type: Type) -> Class {
+        Class(self.0.add(format!("): {};", return_type.to_string())))
     }
     pub fn constructor_end(self) -> Class {
         self.method_end()

@@ -26,4 +26,8 @@ fn main() {
         out.write_all(output.as_bytes()).unwrap();
         println!(" OK! see {}.ts", contract.name);
     }
+    let mut out = File::create("AbstractContract.ts").unwrap();
+    out.write_all(CodeEmitter.emit_contract_abstraction().as_bytes())
+        .unwrap();
+    println!("All done!");
 }
