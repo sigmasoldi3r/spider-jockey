@@ -140,14 +140,39 @@ impl Script {
     pub fn collect(self) -> String {
         self.0.add("\n").output
     }
-    pub fn if_statement(self) -> Script {
-        todo!("Not implemented yet")
-    }
     pub fn expression(self) -> Expression {
         Expression(self.0.line())
     }
     pub fn method_end(self) -> Class {
         Class(self.0.pop().line().add("}"))
+    }
+    pub fn import(self) -> Import {
+        Import(self.0.line())
+    }
+}
+
+pub struct Import(Builder);
+impl Import {
+    pub fn by_default<S>(self, name: S) -> Import
+    where
+        S: ToString,
+    {
+        Import(self.0.add("import ").add(name).add(" from \""))
+    }
+    pub fn by_all<S>(self, alias: S) -> Import
+    where
+        S: ToString,
+    {
+        Import(self.0.add("import * as ").add(alias).add(" from \""))
+    }
+    pub fn from<S>(self, path: S) -> Import
+    where
+        S: ToString,
+    {
+        Import(self.0.add(path))
+    }
+    pub fn import_end(self) -> Script {
+        Script(self.0.add("\";"))
     }
 }
 
@@ -186,6 +211,12 @@ impl Expression {
     {
         Expression(self.0.add(value.to_string()))
     }
+    pub fn do_return(self) -> Expression {
+        Expression(self.0.add("return "))
+    }
+    pub fn do_await(self) -> Expression {
+        Expression(self.0.add("await "))
+    }
 }
 
 pub struct CallExpression(Builder);
@@ -215,7 +246,7 @@ impl Class {
         S: ToString,
     {
         let is_async = if is_async { "async " } else { "" };
-        Method(self.0.add(format!(
+        Method(self.0.line().add(format!(
             "{} {}{}(",
             visibility.to_string(),
             is_async,

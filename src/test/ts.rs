@@ -40,6 +40,10 @@ class Foo {
 #[test]
 fn create_class_with_functions() {
     let out = ts::Script::new()
+        .import()
+        .by_default("AbstractContract")
+        .from("./AbstractContract")
+        .import_end()
         .class("MyClass")
         .constructor()
         .field(
@@ -53,12 +57,20 @@ fn create_class_with_functions() {
         .param("value", ts::Type::Number)
         .body()
         .expression()
+        .do_return()
+        .do_await()
         .field("this")
         .dot()
         .field("contract")
         .dot()
         .field("call")
         .call()
+        .param()
+        .string("myCustomCall")
+        .param_end()
+        .param()
+        .field("value")
+        .param_end()
         .call_end()
         .expression_end()
         .method_end()
@@ -70,7 +82,7 @@ import AbstractContract from \"./AbstractContract\";
 class MyClass {
   constructor(private readonly contract: AbstractContract) {}
   public async myCustomCall(value: number) {
-    return await contract.call(\"myCustomCall\", value);
+    return await this.contract.call(\"myCustomCall\", value);
   }
 }
 ",
