@@ -11,6 +11,7 @@ mod test;
 
 mod code_emitter;
 mod parser;
+pub mod ts;
 
 fn main() {
     let args: Vec<String> = env::args().collect();
