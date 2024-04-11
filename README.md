@@ -59,8 +59,14 @@ works with rust, I am looking forward to implement that also.~~
 **Edit:** Since I couldn't find anything, and maintaining a code
 that does copy-and-paste of strings is tedious, I've built my
 own, but does only support the minimal for this program.
-During the following weeks I'll abstract that to an individual
-crate, so it can be reused.
+~~During the following weeks I'll abstract that to an individual
+crate, so it can be reused.~~
+
+> [!NOTE]
+> As you can imagine, this is not done yet. I'm currently not
+> working in any Ethereum project (as of 2024), so if you want to
+> use this library, and want it to be revived, open a PR or an issue.
+> (But I imagine that noone is willing to use it anyway, but I'll be happy if you do)
 
 There's a lot of things to enhance, like adding more
 parameters to the generator, here are some:
